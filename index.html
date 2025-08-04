@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free PDF Book Finder</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css?v=2" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-4">
+                    <h1 class="display-4 mb-3">
+                        <i class="fas fa-book-open text-info me-3"></i>
+                        Free PDF Book Finder
+                    </h1>
+                    <p class="lead text-muted">Search for free PDF downloads across multiple sources</p>
+                </div>
+
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label for="bookInput" class="form-label h5">
+                                <i class="fas fa-edit me-2"></i>
+                                Enter Books (One per line: "Title – Author")
+                            </label>
+                            <textarea 
+                                id="bookInput" 
+                                class="form-control" 
+                                rows="8" 
+                                placeholder="Try these examples:&#10;Republic – Plato&#10;Pride and Prejudice – Jane Austen&#10;Alice – Lewis Carroll&#10;Frankenstein – Mary Shelley&#10;Great Gatsby – F. Scott Fitzgerald"
+                            ></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Use the format "Title – Author" (one book per line). Works best with classic literature and public domain books.
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button id="searchBtn" class="btn btn-info btn-lg">
+                                <i class="fas fa-search me-2"></i>
+                                Search for PDFs
+                            </button>
+                        </div>
+                        
+                        <!-- Debug info -->
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                Debug: If search doesn't work, check browser console (F12)
+                            </small>
+                            <br>
+                            <button type="button" class="btn btn-sm btn-outline-info mt-2" onclick="testSearch()">
+                                Test Search Function
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading spinner -->
+                <div id="loadingSpinner" class="text-center mt-4" style="display: none;">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Searching across multiple sources...</p>
+                </div>
+
+                <!-- Error message -->
+                <div id="errorMessage" class="alert alert-danger mt-4" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <!-- Results section -->
+                <div id="resultsSection" class="mt-4" style="display: none;">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-info">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-list me-2"></i>
+                                Search Results
+                            </h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col">
+                                                <i class="fas fa-book me-2"></i>
+                                                Title
+                                            </th>
+                                            <th scope="col">
+                                                <i class="fas fa-user me-2"></i>
+                                                Author
+                                            </th>
+                                            <th scope="col">
+                                                <i class="fas fa-globe me-2"></i>
+                                                Source
+                                            </th>
+                                            <th scope="col">
+                                                <i class="fas fa-download me-2"></i>
+                                                Download
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultsTable">
+                                        <!-- Results will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="emptyState" class="text-center mt-4" style="display: none;">
+                    <div class="card shadow-lg">
+                        <div class="card-body p-5">
+                            <i class="fas fa-search-minus text-muted display-1 mb-3"></i>
+                            <h4 class="text-muted">No PDF downloads found</h4>
+                            <p class="text-muted mb-0">
+                                Try different search terms or check your spelling. 
+                                Some books may not be available as free PDFs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div class="modal fade" id="instructionsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-question-circle me-2"></i>
+                        How to Use
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ol>
+                        <li>Enter book titles and authors in the format "Title – Author"</li>
+                        <li>Put each book on a separate line</li>
+                        <li>Click "Search for PDFs" to find available downloads</li>
+                        <li>Click the download buttons to get your PDFs</li>
+                    </ol>
+                    <div class="alert alert-warning">
+                        <strong>Note:</strong> This tool searches for legally available free PDFs from public sources.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Inline test script -->
+    <script>
+        console.log('Inline script loaded');
+        window.testSearch = function() {
+            console.log('Test search function called');
+            alert('Test function works!');
+        };
+    </script>
+    
+    <!-- Inline the main functionality directly -->
+    <script>
+class BookFinder {
+    constructor() {
+        console.log('BookFinder constructor called');
+        
+        this.searchBtn = document.getElementById('searchBtn');
+        this.bookInput = document.getElementById('bookInput');
+        this.loadingSpinner = document.getElementById('loadingSpinner');
+        this.errorMessage = document.getElementById('errorMessage');
+        this.errorText = document.getElementById('errorText');
+        this.resultsSection = document.getElementById('resultsSection');
+        this.resultsTableBody = document.getElementById('resultsTable');
+        this.emptyState = document.getElementById('emptyState');
+        
+        console.log('Elements found:', {
+            searchBtn: !!this.searchBtn,
+            bookInput: !!this.bookInput,
+            loadingSpinner: !!this.loadingSpinner,
+            resultsTableBody: !!this.resultsTableBody,
+            emptyState: !!this.emptyState
+        });
+        
+        this.initializeEventListeners();
+    }
+    
+    initializeEventListeners() {
+        console.log('Initializing event listeners...');
+        
+        if (this.searchBtn) {
+            this.searchBtn.addEventListener('click', () => {
+                console.log('Search button clicked');
+                this.performSearch();
+            });
+            console.log('Search button event listener added');
+        }
+        
+        if (this.bookInput) {
+            this.bookInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    console.log('Keyboard shortcut triggered');
+                    this.performSearch();
+                }
+            });
+        }
+    }
+    
+    async performSearch() {
+        console.log('performSearch called');
+        const bookInput = this.bookInput.value.trim();
+        
+        if (!bookInput) {
+            this.showError('Please enter at least one book in the format "Title – Author"');
+            return;
+        }
+
+        console.log('Processing search for:', bookInput);
+        
+        // Parse books from input
+        const books = this.parseBooks(bookInput);
+        console.log('Parsed books:', books);
+        
+        if (books.length === 0) {
+            this.showError('Please use the format "Title – Author" (one book per line)');
+            return;
+        }
+
+        // Show loading state
+        this.showLoading();
+
+        try {
+            console.log('Sending request to /search_books');
+            const response = await fetch('/search_books', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ books: books })
+            });
+
+            console.log('Response status:', response.status);
+            const data = await response.json();
+            console.log('Response data:', data);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Search failed');
+            }
+
+            this.displayResults(data.results || []);
+        } catch (error) {
+            console.error('Error during search:', error);
+            this.showError(`Search failed: ${error.message}`);
+        } finally {
+            this.hideLoading();
+        }
+    }
+    
+    parseBooks(input) {
+        return input.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .map(line => {
+                const parts = line.split('–').map(part => part.trim());
+                if (parts.length >= 2) {
+                    return {
+                        title: parts[0],
+                        author: parts.slice(1).join(' – ')
+                    };
+                }
+                return null;
+            })
+            .filter(book => book !== null);
+    }
+    
+    showLoading() {
+        this.hideError();
+        this.hideResults();
+        this.loadingSpinner.style.display = 'block';
+        this.searchBtn.disabled = true;
+    }
+    
+    hideLoading() {
+        this.loadingSpinner.style.display = 'none';
+        this.searchBtn.disabled = false;
+    }
+    
+    showError(message) {
+        this.errorText.textContent = message;
+        this.errorMessage.style.display = 'block';
+        this.hideResults();
+    }
+    
+    hideError() {
+        this.errorMessage.style.display = 'none';
+    }
+    
+    hideResults() {
+        this.resultsSection.style.display = 'none';
+    }
+    
+    displayResults(results) {
+        console.log('Displaying results:', results);
+        
+        if (!results || results.length === 0) {
+            if (this.emptyState) this.emptyState.style.display = 'block';
+            if (this.resultsTableBody) this.resultsTableBody.parentElement.parentElement.parentElement.style.display = 'none';
+        } else {
+            if (this.emptyState) this.emptyState.style.display = 'none';
+            if (this.resultsTableBody) {
+                this.resultsTableBody.parentElement.parentElement.parentElement.style.display = 'block';
+                this.resultsTableBody.innerHTML = '';
+                
+                results.forEach(result => {
+                    const row = this.createResultRow(result);
+                    this.resultsTableBody.appendChild(row);
+                });
+            } else {
+                console.error('Results table tbody not found');
+            }
+        }
+        
+        if (this.resultsSection) this.resultsSection.style.display = 'block';
+    }
+    
+    createResultRow(result) {
+        const row = document.createElement('tr');
+        
+        // Title cell
+        const titleCell = document.createElement('td');
+        titleCell.textContent = result.title;
+        titleCell.classList.add('fw-bold');
+        row.appendChild(titleCell);
+        
+        // Author cell
+        const authorCell = document.createElement('td');
+        authorCell.textContent = result.author;
+        row.appendChild(authorCell);
+        
+        // Source cell
+        const sourceCell = document.createElement('td');
+        const sourceSpan = document.createElement('span');
+        sourceSpan.classList.add('badge');
+        
+        switch (result.source) {
+            case 'Project Gutenberg':
+                sourceSpan.classList.add('bg-info');
+                sourceSpan.innerHTML = '<i class="fas fa-book-open me-1"></i>Project Gutenberg';
+                break;
+            case 'Internet Archive':
+                sourceSpan.classList.add('bg-warning', 'text-dark');
+                sourceSpan.innerHTML = '<i class="fas fa-archive me-1"></i>Internet Archive';
+                break;
+            default:
+                sourceSpan.classList.add('bg-secondary');
+                sourceSpan.textContent = result.source;
+        }
+        
+        sourceCell.appendChild(sourceSpan);
+        row.appendChild(sourceCell);
+        
+        // Download cell
+        const downloadCell = document.createElement('td');
+        const downloadBtn = document.createElement('a');
+        downloadBtn.href = result.link;
+        downloadBtn.target = '_blank';
+        downloadBtn.rel = 'noopener noreferrer';
+        downloadBtn.classList.add('btn', 'btn-info', 'btn-sm');
+        downloadBtn.innerHTML = '<i class="fas fa-download me-1"></i>Download PDF';
+        
+        downloadCell.appendChild(downloadBtn);
+        row.appendChild(downloadCell);
+        
+        return row;
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing BookFinder...');
+    try {
+        const bookFinder = new BookFinder();
+        console.log('BookFinder initialized successfully');
+        
+        // Update global test function
+        window.testSearch = function() {
+            console.log('Running test search...');
+            bookFinder.bookInput.value = 'Republic – Plato';
+            bookFinder.performSearch();
+        };
+        
+        console.log('BookFinder ready for use');
+    } catch (error) {
+        console.error('Error initializing BookFinder:', error);
+    }
+});
+    </script>
+</body>
+</html>

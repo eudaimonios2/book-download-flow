@@ -1,0 +1,42 @@
+You are a full-stack developer. Create and deploy a Replit project that provides a one-page web app to fetch free PDF download links for books by title/author. Follow these specs:
+
+1. **Frontend** (index.html):
+   - A textarea where the user pastes “Title – Author” lines (one per line).
+   - A “Search” button.
+   - A results area showing a table of:
+     • Title  
+     • Author  
+     • Source (OceanOfPDF, LibGen, Internet Archive)  
+     • Download link  
+     • A “Download” button next to each link.
+   - Use plain HTML/CSS/JS (no framework) so it runs immediately on Replit’s static webserver.
+
+2. **Backend** (Python Flask):
+   - Expose a `/search` POST endpoint.
+   - Accept JSON `{ books: [ { title: string, author: string } ] }`.
+   - For each book, search in parallel:
+     • OceanOfPDF (`https://oceanofpdf.com/?s=...`)  
+     • Library Genesis (use public mirror API or scrape)  
+     • Internet Archive API (using their JSON search endpoint).
+   - Use realistic headers and handle CORS (`flask-cors`).
+   - Parse each site’s HTML or API to find the first PDF link.
+   - Return JSON `[ { title, author, source, link } ]`.
+
+3. **Deployment**:
+   - Configure the Replit `replit.nix` (or `requirements.txt` + `start` script) so that:
+     • Running the project spins up Flask on port 3000.  
+     • Replit’s static webserver serves `index.html` and proxies `/search` to Flask.  
+   - Provide a “Run” button so that when the Replit is started, both frontend and backend are live at the project’s public URL.
+
+4. **Extras**:
+   - Show a loading spinner while searches run.
+   - Graceful error handling per book (e.g., “Not found”).
+   - Clear instructions in the README: “Paste titles, click Search, click Download.”
+
+Deliverables:
+- A Replit link where I can immediately fork and “Run” the project.
+- All code (index.html, main.py or app.py, any config files).
+- A short README.md explaining usage and how it works.
+
+Build and host it for me; after that, I only need to type a book title and author and get back direct PDF links I can click to download.
+
